@@ -17,7 +17,7 @@ struct Region {
 };
 
 struct Pool {
-    Allocator self_allocator;
+    AllocatorMethods const* methods;
     Allocator const* allocator;
     Region* first_region;
     Region* last_region;
@@ -41,10 +41,7 @@ Pool* havuz_create(size_t const initial_size, Allocator const* const allocator) 
     if (pool == NULL) {
         return NULL;
     }
-    pool->self_allocator = (Allocator){
-        .data = pool,
-        .methods = &havuz_methods,
-    };
+    pool->methods = &havuz_methods;
     pool->allocator = allocator;
     CREATE_REGION(pool->first_region, initial_size, allocator, {
         generic_deallocate(pool->allocator, pool);
@@ -91,8 +88,9 @@ bool havuz_reserve(Pool* const pool, size_t const size) {
     }
     return true;
 }
+
 Allocator* havuz_allocator(Pool* pool) {
-    return &pool->self_allocator;
+    return (Allocator*)pool;
 }
 
 bool havuz_expand(Pool* const pool, size_t const size) {
@@ -111,7 +109,7 @@ static void* havuz_generic_allocate(Allocator const* const self, size_t const si
     if (self->methods != &havuz_methods) {
         return NULL;
     }
-    return havuz_allocate(self->data, size);
+    return havuz_allocate((Pool*)self, size);
 }
 
 static void havuz_generic_deallocate(Allocator const* self, void* const data) {

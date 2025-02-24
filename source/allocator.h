@@ -12,7 +12,6 @@ struct AllocatorMethods {
 };
 
 struct Allocator {
-    void* data;
     AllocatorMethods const* methods;
 };
 
