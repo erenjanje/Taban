@@ -7,8 +7,8 @@ typedef struct Allocator Allocator;
 
 typedef struct AllocatorMethods AllocatorMethods;
 struct AllocatorMethods {
-    void* (*const allocate)(Allocator const* self, size_t size);
-    void (*const deallocate)(Allocator const* self, void* data);
+    void* (*allocate)(Allocator const* self, size_t size);
+    void (*deallocate)(Allocator const* self, void* data);
 };
 
 struct Allocator {
