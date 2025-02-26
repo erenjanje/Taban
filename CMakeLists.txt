@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(havuz)
+project(taban)
 
 if (MSVC)
     add_compile_options(/W4 /WX)
