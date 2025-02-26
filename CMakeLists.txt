@@ -10,5 +10,5 @@ endif ()
 
 set(CMAKE_C_STANDARD 99)
 
-add_subdirectory(source)
+add_subdirectory(src)
 
