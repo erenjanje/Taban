@@ -1,7 +1,6 @@
-#ifndef ALLOCATOR_H
-#define ALLOCATOR_H
+#pragma once
 
-#include <stddef.h>
+#include "common.h"
 
 typedef struct Allocator Allocator;
 
@@ -15,10 +14,7 @@ struct Allocator {
     AllocatorMethods const* methods;
 };
 
-extern AllocatorMethods const heap_allocator_methods;
 extern const Allocator* const heap_allocator;
 
 #define generic_allocate(allocator, size) allocator->methods->allocate(allocator, size)
 #define generic_deallocate(allocator, data) allocator->methods->deallocate(allocator, data)
-
-#endif  // ALLOCATOR_H

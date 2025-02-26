@@ -1,7 +1,7 @@
-#include "havuz.h"
+#include "pool.h"
 
-#undef havuz_allocate
-#undef havuz_new
+#undef pool_allocate
+#undef pool_new
 
 #include <iso646.h>
 #include <stdint.h>
@@ -34,14 +34,14 @@ struct Pool {
         region->next = NULL;                                                \
     } while (0)
 
-static bool havuz_expand(Pool* pool, size_t size);
+static bool pool_expand(Pool* pool, size_t size);
 
-Pool* havuz_create(size_t const initial_size, Allocator const* const allocator) {
+Pool* pool_create(size_t const initial_size, Allocator const* const allocator) {
     Pool* const pool = allocator->methods->allocate(allocator, sizeof(Pool));
     if (pool == NULL) {
         return NULL;
     }
-    pool->methods = &havuz_methods;
+    pool->methods = &pool_methods;
     pool->allocator = allocator;
     CREATE_REGION(pool->first_region, initial_size, allocator, {
         generic_deallocate(pool->allocator, pool);
@@ -51,7 +51,7 @@ Pool* havuz_create(size_t const initial_size, Allocator const* const allocator) 
     return pool;
 }
 
-void havuz_destroy(Pool* const pool) {
+void pool_destroy(Pool* const pool) {
     Region* current = pool->first_region;
     while (current != NULL) {
         Region* next = current->next;
@@ -64,16 +64,16 @@ void havuz_destroy(Pool* const pool) {
     generic_deallocate(pool->allocator, pool);
 }
 
-void* havuz_allocate(Pool* const pool, size_t const size) {
-    if (not havuz_reserve(pool, size)) {
+void* pool_allocate_(Pool* const pool, size_t const size) {
+    if (not pool_reserve(pool, size)) {
         return NULL;
     }
     pool->last_region->top += size;
     return pool->last_region->data + pool->last_region->top - size;
 }
 
-void* havuz_new(Pool* pool, size_t const size, void const* const value) {
-    void* ret = havuz_allocate(pool, size);
+void* pool_new_(Pool* pool, size_t const size, void const* const value) {
+    void* ret = pool_allocate_(pool, size);
     if (ret == NULL) {
         return NULL;
     }
@@ -81,19 +81,19 @@ void* havuz_new(Pool* pool, size_t const size, void const* const value) {
     return ret;
 }
 
-bool havuz_reserve(Pool* const pool, size_t const size) {
+bool pool_reserve(Pool* const pool, size_t const size) {
     size_t const remaining = pool->last_region->size - pool->last_region->top;
     if (remaining < size) {
-        return havuz_expand(pool, size);
+        return pool_expand(pool, size);
     }
     return true;
 }
 
-Allocator* havuz_allocator(Pool* pool) {
+Allocator* allocator_from_pool(Pool* pool) {
     return (Allocator*)pool;
 }
 
-bool havuz_expand(Pool* const pool, size_t const size) {
+bool pool_expand(Pool* const pool, size_t const size) {
     size_t const last_region_size = pool->last_region->size == 0 ? 1 : pool->last_region->size;
     size_t const new_region_size = size > last_region_size ? size : last_region_size * 2;
     Region* new_region;
@@ -105,16 +105,16 @@ bool havuz_expand(Pool* const pool, size_t const size) {
 
 /*******************************************************************************************/
 
-static void* havuz_generic_allocate(Allocator const* const self, size_t const size) {
-    return havuz_allocate((Pool*)self, size);
+static void* pool_generic_allocate(Allocator const* const self, size_t const size) {
+    return pool_allocate_((Pool*)self, size);
 }
 
-static void havuz_generic_deallocate(Allocator const* self, void* const data) {
+static void pool_generic_deallocate(Allocator const* self, void* const data) {
     (void)self;
     (void)data;
 }
 
-AllocatorMethods const havuz_methods = {
-    .allocate = &havuz_generic_allocate,
-    .deallocate = &havuz_generic_deallocate,
+AllocatorMethods const pool_methods = {
+    .allocate = &pool_generic_allocate,
+    .deallocate = &pool_generic_deallocate,
 };
