@@ -106,9 +106,6 @@ bool havuz_expand(Pool* const pool, size_t const size) {
 /*******************************************************************************************/
 
 static void* havuz_generic_allocate(Allocator const* const self, size_t const size) {
-    if (self->methods != &havuz_methods) {
-        return NULL;
-    }
     return havuz_allocate((Pool*)self, size);
 }
 
