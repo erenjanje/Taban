@@ -10,5 +10,12 @@ endif ()
 
 set(CMAKE_C_STANDARD 99)
 
-add_subdirectory(src)
+###########################################################
+
+set(files "havuz.c" "havuz.h" "allocator.c" "allocator.h")
+
+add_executable(taban_test "main.c" ${files})
+
+add_library(taban ${files})
+
 
