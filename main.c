@@ -27,6 +27,7 @@ int main() {
     IGNORE(array_at(int)(&o, arr, 2));
     var d = 0.0;
     let err = bar(&d, 1.0, -3.0);
+    result_addStackTrace(err, __FILE__, __func__, __LINE__);
     printf("%s\n", result_print(err, allocator_from_pool(pool)));
 
     printf("%8x\n", *out);

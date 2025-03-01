@@ -45,6 +45,7 @@ result_print_trace_walker(void* const context_, Ctring const filename, Ctring co
 }
 
 Ztring result_print(CResult const self, IAllocator const allocator) {
+    // TODO: First calculate the max function name length and then align function names with the result
     let message_length = snprintf(NULL, 0, "Error: %s\n", self->message);
     var ret = (Ztring)ALLOCATE(allocator, message_length + 1);
     snprintf(ret, message_length + 1, "Error: %s\n", self->message);
