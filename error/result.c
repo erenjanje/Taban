@@ -36,9 +36,9 @@ static void
 result_print_trace_walker(void* const context_, Ctring const filename, Ctring const function, int const line) {
     // TODO: Use string_append and/or string_format when implemented
     let context = (PrintContext*)context_;
-    let added_length = snprintf(NULL, 0, "    %s (%s:%d)\n", function, filename, line);
+    let added_length = snprintf(NULL, 0, "%s%32s (%s:%d)\n", function, filename, line);
     let ret = (Ztring)ALLOCATE(context->allocator, context->length + added_length + 1);
-    snprintf(ret, context->length + added_length + 1, "%s    %s (%s:%d)\n", *context->ret, function, filename, line);
+    snprintf(ret, context->length + added_length + 1, "%s%32s (%s:%d)\n", *context->ret, function, filename, line);
     DEALLOCATE(context->allocator, *context->ret);
     *context->ret = ret;
     context->length += added_length;
