@@ -5,35 +5,30 @@
 #include "error/result.h"
 #include "memory/pool.h"
 
-IResult sqroot(double* ret, double x) {
-    PROLOGUE;
-    if (x < 0.0f) {
+DEFINE_FAILABLE_FUNCTION(sqroot(double* ret, double x), {
+    if (x < 0.0) {
         THROW(runtime_error("Cannot take root of negative value", 1, heap_allocator));
     }
     *ret = sqrt(x);
-    EPILOGUE;
-}
+})
 
-IResult doit(double* ret, double a, double b) {
-    PROLOGUE;
-    TRY(sqroot(ret, a + b));
-    EPILOGUE;
-}
+DEFINE_FAILABLE_FUNCTION(doit(double* ret, double a, double b), { TRY(sqroot(ret, a + b)); })
 
-IResult bar(double* ret, double a, double b) {
-    PROLOGUE;
-    TRY(doit(ret, a, b));
-    EPILOGUE;
-}
+DEFINE_FAILABLE_FUNCTION(bar(double* ret, double a, double b), { TRY(doit(ret, a, b)); })
 
 int main() {
-    // let pool = pool_create(0, heap_allocator);
-    // var arr = array_new(int)(2, allocator_from_pool(pool));
-    // array_push(int)(&arr, 0xdeadbeef);
-    // array_push(int)(&arr, 123);
-    // printf("%8x %d\n", *array_at(int)(arr, 0), *array_at(int)(arr, 1));
-    // pool_destroy(pool);
-    double result = 0.0;
-    let res = bar(&result, 1.0f, -3.0f);
-    return 0;
+    let pool = pool_create(0, heap_allocator);
+    var arr = array_new(int)(0, heap_allocator);
+    array_push(int)(&arr, 0xdeadbeef);
+    array_push(int)(&arr, 123);
+    var out = (int*)NULL;
+    var o = (int*)NULL;
+    IGNORE(array_at(int)(&out, arr, 0));
+    IGNORE(array_at(int)(&o, arr, 2));
+    var d = 0.0;
+    let err = bar(&d, 1.0, -3.0);
+    printf("%s\n", result_print(err, allocator_from_pool(pool)));
+
+    printf("%8x\n", *out);
+    pool_destroy(pool);
 }
